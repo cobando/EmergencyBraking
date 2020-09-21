@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-
 class SpatialFiltering(nn.Module):
     def __init__(self, n_channels, n_virtual_channels):
         super(SpatialFiltering, self).__init__()
@@ -43,7 +42,8 @@ class DenseBlock(nn.Module):
         self.transform = nn.Sequential(
             nn.Dropout(p=0.5, inplace=False),   # p probability of an element to be zeroed.
             nn.Linear(in_features, 1),
-
+            # nn.Softmax(dim=1),  #
+            # nn.Sigmoid(),  # Comment if using BCEWithLogitsLoss()
         )
 
         print('>> DenseBlock has {} parameters'.format(sum([len(elt.view(-1)) for elt in self.parameters()])))
@@ -53,7 +53,8 @@ class DenseBlock(nn.Module):
 
 
 class DreemNet(nn.Module):
-    def __init__(self, n_channels=59, n_virtual_channels=59, convolution_size=16, pool_size=8, n_hidden_channels=8):
+    def __init__(self, n_channels=59, n_virtual_channels=59, convolution_size=16, pool_size=8, n_hidden_channels=8,
+                 n_time_series=320):
         super(DreemNet, self).__init__()
 
         self.spatial_filtering = SpatialFiltering(n_channels, n_virtual_channels)
@@ -61,7 +62,7 @@ class DreemNet(nn.Module):
                                       convolution_size=convolution_size, pool_size=pool_size)
         self.conv_block_2 = ConvBlock(in_channels=n_hidden_channels, out_channels=n_hidden_channels,
                                       convolution_size=convolution_size, pool_size=pool_size)
-        self.dense_block = DenseBlock(in_features=(320 // pool_size ** 2 * n_virtual_channels * n_hidden_channels))
+        self.dense_block = DenseBlock(in_features=(n_time_series // pool_size ** 2 * n_virtual_channels * n_hidden_channels))
 
         print('>> DreemNet has {} parameters'.format(sum([len(elt.view(-1)) for elt in self.parameters()])))
 

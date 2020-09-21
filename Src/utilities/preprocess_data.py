@@ -1,20 +1,19 @@
 # Imports
-import scipy.io
 import h5py
-import time
-from h5py import File  # Package used for loading data from the input h5 file
-import matplotlib.pyplot as plt
 import numpy as np
 import os
-from os import listdir
+from sklearn.utils import resample
 
 path_data_mat = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/raw/'))
-path_data_save = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/All_noevnets/'))
+# path_data_save = os.path.normpath(
+#     os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_events/'))
+
+path_data_save = os.path.normpath(
+    os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_events_noevents/'))
 
 file_names = sorted(os.listdir(path=path_data_mat))
 file_names = [x for x in file_names if not x.startswith('.')]
 
-file_name = "VPja.mat"  # VPja.mat ; VPbax.mat
 
 for file_name in file_names:
     # Extract data cnt - contains data of different channels:
@@ -51,14 +50,10 @@ for file_name in file_names:
             continue
         np.save(path_out, A_norm)
 
-
-        # noevents_seg = int((noevents_len[event_index] - gap_sml*2 - ts_i + nts_offset) / ts_)
-        # for noevent_ix in range(noevents_seg):
-        #     noevents_int[event_index] + gap_sml
-        #     A = x[channels_eeg, event_time - ts_i:event_time + ts_f]
-
+    ### UNCOMMENT to get no_events
     gap_sml = 600  # 3000 ms apart from any stimulus
     nts_offset = 100  # 500 ms
+
     count = 0
     for event_index in range(len(noevents_len)):
         noevents_seg = int((noevents_len[event_index] - gap_sml * 2 - ts_i + ts_f) / nts_offset)

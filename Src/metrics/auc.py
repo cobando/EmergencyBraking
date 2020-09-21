@@ -9,11 +9,12 @@ class Auc(_Loss):
         super(Auc, self).__init__()
 
     def forward(self, yp, y):
-        yp_thresholded = (torch.sigmoid(yp) > 0.5) * 1.0
-        #fpr, tpr, thresholds = metrics.roc_curve(y, yp_thresholded, pos_label=2)
-        #auc = roc_auc_score(y.numpy(), yp_thresholded.numpy())
+        # yp_thresholded = (torch.sigmoid(yp) > 0.5) * 1.0
+        # fpr, tpr, thresholds = metrics.roc_curve(y, yp_thresholded, pos_label=2)
+        # auc = roc_auc_score(y.numpy(), yp_thresholded.numpy())
         try:
-            auc = roc_auc_score(y.numpy(), yp_thresholded.numpy())
+            auc = roc_auc_score(y.numpy(), torch.sigmoid(yp).numpy())
+            # auc = roc_auc_score(y.numpy(), yp.numpy())
         except ValueError:
             auc = float("nan")
 

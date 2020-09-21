@@ -9,8 +9,8 @@ import os
 from os import listdir
 
 path_data_mat = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/raw/'))
-path_data_save1 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_events/'))
-path_data_save2 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_performance/'))
+path_data_save1 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_events_EMG/'))
+#path_data_save2 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_performance/'))
 path_data_save3 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_reactio_time/'))
 
 file_names = sorted(os.listdir(path=path_data_mat))
@@ -61,12 +61,13 @@ for file_name in file_names:
     gap_sml = 600  # Non-targets data blocks (1500 ms duration, 500 ms equidistant offset) that were at least 3000 ms apart from any stimulus.
     nts_offset = 100  # 500 ms equidistant offset equidistant offset
 
-    channels_eeg = np.arange(61)
+    channels_eeg = np.arange(62)
     channels_eeg = np.delete(channels_eeg, [0, 5])
+    # channels_eeg = 62 # To only get EMG data
     for event_index in range(len(events_react_y)):
         event_time = events_react_y[event_index]
-        A = x[channels_eeg, event_time - ts_i:event_time + ts_f]
-        A_norm = np.subtract(A, np.array(A[:, :20].mean(1)).reshape(A.shape[0], 1))
+        A_norm = x[channels_eeg, event_time - ts_i:event_time + ts_f]
+        #A_norm = np.subtract(A, np.array(A[:, :20].mean(1)).reshape(A.shape[0], 1))
         path_out = os.path.join(path_data_save1, '%s_segment_%d_event.npy' % (file_name, event_index))
         #path_out_perf = os.path.join(path_data_save2, '%s_segment_%d_performance.npy' % (file_name, event_index))
         path_out_perf_reaction_time = os.path.join(path_data_save3, '%s_segment_%d_performance.npy' % (file_name, event_index))
@@ -79,6 +80,6 @@ for file_name in file_names:
         #     np.save(path_out, A_norm)
         #     np.save(path_out_perf, perf[event_index])
 
-        if np.isfinite(perf_react_time[event_index]):
+        if np.isfinite(perf_react_time[event_index]): # or if perf_react_time[event_index] <100, don't put it
             np.save(path_out, A_norm)
             np.save(path_out_perf_reaction_time, perf_react_time[event_index])
