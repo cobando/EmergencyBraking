@@ -34,13 +34,13 @@ class Model(pl.LightningModule):
         self.output_dir = os.path.join(path_to_results, hparams.experiment)
         pathlib.Path(self.output_dir).mkdir(parents=True, exist_ok=True)
 
-        (self.dataset_train, self.dataset_val, self.dataset_test) = load_dataset(hparams.fold)
+        (self.dataset_train, self.dataset_val, self.dataset_test) = load_dataset(hparams.fold,hparams.window_size)
         self.loader_train = DataLoader(self.dataset_train, batch_size=hparams.batch_size, shuffle=True,
-                                       num_workers=0, pin_memory=True, drop_last=True)
-        self.loader_val = DataLoader(self.dataset_val, batch_size=len(self.dataset_val), shuffle=False,
-                                     num_workers=0, pin_memory=True, drop_last=True)
-        self.loader_test = DataLoader(self.dataset_test, batch_size=len(self.dataset_test), shuffle=False,
-                                      num_workers=0, pin_memory=True, drop_last=True)
+                                       num_workers=3, pin_memory=True, drop_last=True)
+        self.loader_val = DataLoader(self.dataset_val, batch_size=hparams.batch_size, shuffle=False,
+                                     num_workers=3, pin_memory=True, drop_last=False)
+        self.loader_test = DataLoader(self.dataset_test, batch_size=hparams.batch_size, shuffle=False,
+                                      num_workers=3, pin_memory=True, drop_last=False)
 
         self.loss = BCEWithLogitsLoss()  # 0, 1
         # self.loss = MSELoss() # Regression
@@ -50,7 +50,7 @@ class Model(pl.LightningModule):
             'spe': Specificity(),
             'sen': Sensitivity(),
             'auc': Auc(),
-            'f1score' : F1score()
+            'f1score': F1score()
         }
         # self.metrics = {
         #     'mae': L1Loss()
@@ -62,7 +62,7 @@ class Model(pl.LightningModule):
 
         self.net = DreemNet(n_channels=hparams.n_channels, n_virtual_channels=hparams.n_virtual_channels,
                             convolution_size=hparams.convolution_size, pool_size=hparams.pool_size,
-                            n_hidden_channels=hparams.n_hidden_channels)
+                            n_hidden_channels=hparams.n_hidden_channels, window_size=hparams.window_size)
         # self.net = CataNet()
 
     def forward(self, x):
@@ -95,7 +95,7 @@ class Model(pl.LightningModule):
 
             return metrics
 
-    def validation_end(self, outputs):  # validation_epoch_end
+    def validation_epoch_end(self, outputs):  # before called validation_end
 
         metrics = {key: torch.stack([x[key] for x in outputs]).mean() for key in self.metrics_avg.keys()}
         for key, value in metrics.items():
@@ -114,7 +114,7 @@ class Model(pl.LightningModule):
 
             return metrics
 
-    def test_end(self, outputs):
+    def test_epoch_end(self, outputs): # before called test_end
         metrics = {key: torch.stack([x[key] for x in outputs]).mean() for key in self.metrics_avg.keys()}
         for key, value in metrics.items():
             self.logger.experiment.add_scalars(key, {'test': value}, self.global_step)
@@ -130,7 +130,7 @@ class Model(pl.LightningModule):
         return self.loader_test
 
     def configure_optimizers(self):
-        return Adam(self.parameters(), lr=self.hparams.lr, weight_decay=1e-2)
+        return Adam(self.parameters(), lr=self.hparams.lr, weight_decay=1e-2)  # Default 1e-2, maybe increase it?
 
 
 
@@ -167,20 +167,38 @@ if __name__ == '__main__':
 
     # parser.add_argument("--experiment", type=str, default='1__debug', help="name of the experiment")
     # parser.add_argument("--experiment", type=str, default='3__performance_modes', help="name of the experiment")
-    parser.add_argument("--experiment", type=str, default='4__label_collison', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='4__label_collison', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='5__windowsize_label_braking', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='6__filter_braking_collision', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='7__label_braking_drive', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='8__label_collison_balanced', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='9__windowsize_label_collision', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='10__windowsize_label_collision_balanced', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='11__windowsize_label_collision_filtered', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='12__windowsize_label_collision_filtered_balanced', help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='13__windowsize_label_collision_filtered_balanced_smallNN',
+    #                     help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='14__windowsize_label_collision_filtered_balanced_bigNN',
+    #                     help="name of the experiment")
+    # parser.add_argument("--experiment", type=str, default='15__windowsize_label_collision_modes',
+    #                     help="name of the experiment")
+    parser.add_argument("--experiment", type=str, default='16__windowsize_label_collision_ERPcnhls',
+                        help="name of the experiment")
 
     parser.add_argument("--fold", type=int, default=0, help="5-fold index: choose between 0, 1, 2, 3 or 4.")
 
-    parser.add_argument("--n_epochs", type=int, default=1000, help="number of epochs")  # default=100
-    parser.add_argument("--batch_size", type=int, default=2**5, help="size of the batches")  # default=32=2**5, 2**10
-    parser.add_argument("--lr", type=float, default=1e-3, help="learning rate")  # default=1e-3
+    parser.add_argument("--n_epochs", type=int, default=10000, help="number of epochs")  # default=100 (I put 500)
+    parser.add_argument("--batch_size", type=int, default=2**9, help="size of the batches")  # default=32=2**5, 2**10
+    parser.add_argument("--lr", type=float, default=1e-5, help="learning rate")  # default=1e-3
 
-    parser.add_argument("--n_virtual_channels", type=int, default=10)  # default=59
-    parser.add_argument("--convolution_size", type=int, default=64)  # default=16; 64
-    parser.add_argument("--pool_size", type=int, default=16)  # default=8; 16
-    parser.add_argument("--n_hidden_channels", type=int, default=8)  # default=8,
-    parser.add_argument("--n_time_series", type=int, default=320)  # default=320 # number of time points
-    parser.add_argument("--n_channels", type=int, default=59)  # default=59 for EEG
+    parser.add_argument("--n_virtual_channels", type=int, default=20)  # default=59
+    parser.add_argument("--convolution_size", type=int, default=2**4)  # default2**4=16; paper:64 = 2**6
+    parser.add_argument("--pool_size", type=int, default=2**2)  # default=8; paper:16 = 2**4
+    parser.add_argument("--n_hidden_channels", type=int, default=2**1)  # default=8 = 2**3(same as in paper),
+    # parser.add_argument("--n_time_series", type=int, default=320)  # default=320 # number of time points
+    parser.add_argument("--n_channels", type=int, default=20)  # default=59 for EEG, change for modes, or EMG, or others
+
+    parser.add_argument("--window_size", type=int, default=281)  # default=320 for EEG, the size is in number of points, 1ponint = 5ms
 
     hparams = parser.parse_args()
     main(hparams)

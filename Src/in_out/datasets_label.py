@@ -5,15 +5,28 @@ import torch
 from torch.utils.data import TensorDataset
 from sklearn.utils import resample
 
-def load_dataset(fold):
+def load_dataset(fold,window_size):
 
-    #path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/All_noevnets'))
-    # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/Balanced_01'))
+    # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/VPja_all'))
+    # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/Balanced_01')) # Only for one subject
     # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
     #                                              '../../data/post_processed/AllSubjects_events_collision'))  #
+    #
+    # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
+    #                                              '../../data/post_processed/AllSubjects_balanced_collison'))  #
+
+    # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
+    #                                              '../../data/post_processed/AllSubjects_filter_1_8_braking_collison'))  #
+
+    # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
+    #                                              '../../data/post_processed/AllSubjects_balanced_filter_1_8_braking_collison'))  #
 
     path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
-                                                 '../../data/post_processed/AllSubjects_balanced_collison'))  #
+                                                 '../../data/post_processed/nModes500'))  #
+
+    path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
+                                                 '../../data/post_processed/AllSubjects_erpchnls_balanced_filter_1_8_braking_collison'))  #
+
 
 
     files = sorted([elt for elt in os.listdir(path_to_data) if elt[-4:] == '.npy'],
@@ -25,8 +38,15 @@ def load_dataset(fold):
 
     datapoints = []
     labels = []
+    w_b = 60/320 # This is fix, what changes is window_size
+    w_a = 260/320
+    t_event = 60
     for file in files:
         datapoint = np.load(os.path.join(path_to_data, file))
+
+        # # Select window_size ## Comment for modes
+        # datapoint = datapoint[:, int(t_event - window_size*w_b): int(t_event + window_size*w_a)]
+
         datapoint = torch.from_numpy(datapoint).float()
         datapoints.append(datapoint)
 

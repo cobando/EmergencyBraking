@@ -50,7 +50,7 @@ for file_name in file_names:
         elif (min(diff[diff > 0]) > 25000):  # car_brake_y[i] is too far from any collision, so label = 0, 25000 is
             collison_label.append(0)
         else:
-            collison_label.append(1) # There is a collison
+            collison_label.append(1)  # There is a collison
 
     # To get BALANCED DATA
     event_collison = np.where(np.asarray(collison_label) == 1)[0]

@@ -13,6 +13,7 @@ class SpatialFiltering(nn.Module):
     def forward(self, x):
         # return self.transform(x).permute(0, 2, 3, 1)
         return self.transform(x).permute(0, 2, 1, 3)
+        # return self.transform(x).permute(0, 2, 1) # For modes
 
 
 class ConvBlock(nn.Module):
@@ -54,15 +55,17 @@ class DenseBlock(nn.Module):
 
 class DreemNet(nn.Module):
     def __init__(self, n_channels=59, n_virtual_channels=59, convolution_size=16, pool_size=8, n_hidden_channels=8,
-                 n_time_series=320):
+                 window_size=320):
         super(DreemNet, self).__init__()
 
         self.spatial_filtering = SpatialFiltering(n_channels, n_virtual_channels)
-        self.conv_block_1 = ConvBlock(in_channels=1, out_channels=n_hidden_channels,
+        self.conv_block_1 = ConvBlock(in_channels=1, out_channels=n_hidden_channels, # in_channels=1, images would be 3
                                       convolution_size=convolution_size, pool_size=pool_size)
         self.conv_block_2 = ConvBlock(in_channels=n_hidden_channels, out_channels=n_hidden_channels,
                                       convolution_size=convolution_size, pool_size=pool_size)
-        self.dense_block = DenseBlock(in_features=(n_time_series // pool_size ** 2 * n_virtual_channels * n_hidden_channels))
+        self.dense_block = DenseBlock(in_features=(window_size // pool_size ** 2 * n_virtual_channels * n_hidden_channels))
+
+
 
         print('>> DreemNet has {} parameters'.format(sum([len(elt.view(-1)) for elt in self.parameters()])))
 
