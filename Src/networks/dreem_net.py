@@ -54,8 +54,8 @@ class DenseBlock(nn.Module):
 
 
 class DreemNet(nn.Module):
-    def __init__(self, n_channels=59, n_virtual_channels=59, convolution_size=16, pool_size=8, n_hidden_channels=8,
-                 window_size=320):
+    def __init__(self, n_channels, n_virtual_channels, convolution_size, pool_size, n_hidden_channels,
+                 window_size):
         super(DreemNet, self).__init__()
 
         self.spatial_filtering = SpatialFiltering(n_channels, n_virtual_channels)

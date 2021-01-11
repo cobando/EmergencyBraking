@@ -24,8 +24,11 @@ def load_dataset(fold,window_size):
     path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
                                                  '../../data/post_processed/nModes500'))  #
 
+    # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
+    #                                              '../../data/post_processed/AllSubjects_erpchnls_balanced_filter_1_8_braking_collison'))  #
+
     path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
-                                                 '../../data/post_processed/AllSubjects_erpchnls_balanced_filter_1_8_braking_collison'))  #
+                                                 '../../data/post_processed/AllSubjects_erpchnls_eog_balanced_filter_1_8_braking_collison'))  #
 
 
 

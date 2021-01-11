@@ -183,22 +183,22 @@ if __name__ == '__main__':
     # parser.add_argument("--experiment", type=str, default='15__windowsize_label_collision_modes',
     #                     help="name of the experiment")
     parser.add_argument("--experiment", type=str, default='16__windowsize_label_collision_ERPcnhls',
-                        help="name of the experiment")
+                        help="name of the experiment") # and with EOG (but it is not working yet)
 
     parser.add_argument("--fold", type=int, default=0, help="5-fold index: choose between 0, 1, 2, 3 or 4.")
 
-    parser.add_argument("--n_epochs", type=int, default=10000, help="number of epochs")  # default=100 (I put 500)
-    parser.add_argument("--batch_size", type=int, default=2**9, help="size of the batches")  # default=32=2**5, 2**10
-    parser.add_argument("--lr", type=float, default=1e-5, help="learning rate")  # default=1e-3
+    parser.add_argument("--n_epochs", type=int, default=30000, help="number of epochs")  # default=100 (I put 500), after studies = 10000
+    parser.add_argument("--batch_size", type=int, default=2**9, help="size of the batches")  # default=32=2**5, after studies 1**9
+    parser.add_argument("--lr", type=float, default=1e-5, help="learning rate")  # default=1e-3, after studies 1e-5
 
-    parser.add_argument("--n_virtual_channels", type=int, default=20)  # default=59
-    parser.add_argument("--convolution_size", type=int, default=2**4)  # default2**4=16; paper:64 = 2**6
-    parser.add_argument("--pool_size", type=int, default=2**2)  # default=8; paper:16 = 2**4
-    parser.add_argument("--n_hidden_channels", type=int, default=2**1)  # default=8 = 2**3(same as in paper),
+    parser.add_argument("--n_virtual_channels", type=int, default=22)  # default=59
+    parser.add_argument("--convolution_size", type=int, default=2**6)  # default2**4=16; paper:64 = 2**6
+    parser.add_argument("--pool_size", type=int, default=2**4)  # default=8; paper:16 = 2**4
+    parser.add_argument("--n_hidden_channels", type=int, default=2**3)  # default=8 = 2**3(same as in paper),
     # parser.add_argument("--n_time_series", type=int, default=320)  # default=320 # number of time points
-    parser.add_argument("--n_channels", type=int, default=20)  # default=59 for EEG, change for modes, or EMG, or others
+    parser.add_argument("--n_channels", type=int, default=22)  # default=59 for EEG, change for modes, or EMG, or others
 
-    parser.add_argument("--window_size", type=int, default=281)  # default=320 for EEG, the size is in number of points, 1ponint = 5ms
+    parser.add_argument("--window_size", type=int, default=320)  # default=320 for EEG, the size is in number of points, 1ponint = 5ms
 
     hparams = parser.parse_args()
     main(hparams)

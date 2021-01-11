@@ -12,6 +12,7 @@ path_data_mat = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 filter_0 = 1
 filter_1 = 8
 channels_eeg = np.delete(np.arange(61), [0, 5])
+channels_eeg_eog = np.arange(61)
 montage_std = make_standard_montage('biosemi64')
 event_id = {'braking': 0, 'collision': 1}  #
 tmin = -0.3  # ts_i = 60  # Target segment interval intial point -> corresponds to 300ms
@@ -110,6 +111,12 @@ for file_name in file_names:
     ###### EEG data in MNE
     ch_types = 'eeg'
     ch_names = np.array(name_elec)[channels_eeg]
+
+    ###### EEG & EOG data in MNE
+    ch_types  = np.array(['eeg']* 22)
+    ch_types[0] = 'eog'
+    ch_types[3] = 'eog'
+    ch_names = np.array(name_elec)[channels_eeg_eog]
 
     ###################@ Comment one or the other###################@###################@###################@
     # # All EEG channels

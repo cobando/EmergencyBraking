@@ -1,0 +1,67 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\title{Human Monitoring problem formulation}
+\author{Catalina Obando Forero}
+\date{January 2021}
+
+\begin{document}
+
+\maketitle
+
+\section{General formulation}
+Let  $\mathcal{X}_t =  \mathbb{R}^{C \times T} $ denote a temporal process of the brain activity of a human performing a task, measured by an EEG with $C$ channels and $T$ the total time of the recording. Given a task, a performance measurement $R_t \in \mathbb{R} $ is associated. \\
+
+We want to monitor the human performance by finding a function $d: X_t \rightarrow{\mathbb{R}}$, such that $d(X_k) = R_t$. \\
+
+\section{Example: Emergency Braking use case}
+Consider a human driving a virtual car tasked with tightly follow a computer-controlled lead vehicle. This lead vehicle occasionally decelerates abruptly. The pilot is instructed to perform immediate emergency braking in these situations in order to avoid a crash.
+
+The aim is to use pilot's brain activity measured by an EEG and behavioral response to:
+\begin{enumerate}
+    \item Discriminate an emergency situation to a normal driving situation
+    \item Assist the pilot in the emergency situation by detecting the emergency before the behavioral break action occurs 
+    \item Define a coherent performance $R_t$ of the pilot's action in emergency situations
+    \item Predict pilots performance form neurophysiological responses
+\end{enumerate}
+
+\subsection{Discriminate an emergency and normal driving}
+This is the easy case: classify braking events to no braking event -> obtained high accuracy with different ML methods (use to benchmark) 
+
+\subsection{Assist the pilot in an emergency situation}
+Show how much time is save by detecting the emergency from the eeg, show how many collisions could be avoided, ... 
+
+\subsection{Performance}
+Performance defined as collision or not collision.
+Performance defined as a reaction time.
+
+\subsection{Predict pilots performance}
+
+
+
+\section{Methods}
+
+\subsection{DeepNet}
+Let
+$f: X_k \rightarrow{\mathcal{Y}} $
+stand for a predictive model that belongs to a parametric set denoted $\mathcal{F}$, where  $\mathcal{X}_k = \left( \mathbb{R}^{C \times T} \right)^{(2k+1)} $ with $C$ the number of EEG channels and $T$ the second of a EEG segment.\\
+
+$f$ takes as input an ordered sequence of $2k+1$ neighboring segments of signal and outputs a probability vector $p\in \mathcal{Y}$.\\
+
+The machine learning problem tackled then reads
+
+$\hat{f}  = \arg \min \mathbb{E}_{x,y\in \mathcal{X}_k \times \mathcal{Y}} \left[ \ell (f(x),y) \right]$\\
+
+
+whenever $k>0$ the neural network has access to the temporal context of the segment of signal to classify, it is the \cal{temporal stage classification problem}, and when $k=0$ the problem boils down to the standard formulation of stage classification. 
+
+\subsection{KL}
+
+
+
+%%%%%%%%%%%%%%
+\end{document}
+
+
