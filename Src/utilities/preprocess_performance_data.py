@@ -14,6 +14,7 @@ path_data_save1 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../.
 path_data_save3 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_reactio_time/'))
 #path_data_save4 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_sumEEG/')) # Path to y/performance/label data
 #path_data_save5 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_meanEEG/')) # Path to y/performance/label data
+path_data_save6 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../data/post_processed/AllSubjects_pedal_time/'))
 
 file_names = sorted(os.listdir(path=path_data_mat))
 file_names = [x for x in file_names if not x.startswith('.')]
@@ -57,6 +58,24 @@ for file_name in file_names:
     perf = react_time / np.power(x[64, events_react_y], 2) #  x[64, events_react_y] could be 0
     perf_react_time = react_time
 
+    ### Add behaivoral reaction - PEDAL BRAKE
+    brake_pilot = []
+    space_intraevents = np.diff(events_y)
+    for i in range(len(events_y)):
+        value_temp = np.where(np.diff(x[68][events_y[i]:]) > 1e-02)[0]
+        if (len(value_temp)!=0):
+            value_temp = value_temp[0]
+            if (i == 0 or i == len(events_y) - 1):
+                brake_pilot.append(value_temp)
+            elif (value_temp < space_intraevents[i]):
+                brake_pilot.append(value_temp)  # This is in ms
+            else:  # This is when the pilot does not brake
+                brake_pilot.append(np.NaN)
+        else:
+            brake_pilot.append(np.NaN)
+    brake_pilot_react = np.delete(brake_pilot, event_noreact)
+
+
 
     # Construct matrix for all target segments for channel chn_name
     ts_i = 60  # Target segment interval intial point -> corresponds to 300ms
@@ -79,17 +98,22 @@ for file_name in file_names:
 
         path_out_perf_reaction_time = os.path.join(path_data_save3, '%s_segment_%d_performance.npy' % (file_name, event_index))
 
+        path_out_pedal_time = os.path.join(path_data_save6, '%s_segment_%d_performance.npy' % (file_name, event_index))
+
         # if os.path.isfile(path_out):
         #     continue
-
 
         # if np.isfinite(perf[event_index]):
         #     np.save(path_out, A_norm)
         #     np.save(path_out_perf, perf[event_index])
 
-        if np.isfinite(perf_react_time[event_index]) and perf_react_time[event_index] > 200: # This last condition is to remove reaction time that are outliers and lkely measure errors
-            np.save(path_out, A_norm)
-            np.save(path_out_perf_reaction_time, perf_react_time[event_index])
+        ## UNCOMMENT HERE
+        # if np.isfinite(perf_react_time[event_index]) and perf_react_time[event_index] > 200: # This last condition is to remove reaction time that are outliers and lkely measure errors
+        #     np.save(path_out, A_norm)
+        #     np.save(path_out_perf_reaction_time, perf_react_time[event_index])
+
+        if np.isfinite(brake_pilot_react[event_index]):
+            np.save(path_out_pedal_time, brake_pilot_react[event_index])
 
         # np.save(path_out, A_norm)
         # np.save(path_out_perf_reaction_time, perf_mean_eeg)

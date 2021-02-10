@@ -27,8 +27,17 @@ def load_dataset(fold,window_size):
     # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
     #                                              '../../data/post_processed/AllSubjects_erpchnls_balanced_filter_1_8_braking_collison'))  #
 
+    # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
+    #                                              '../../data/post_processed/AllSubjects_erpchnls_eog_balanced_filter_1_8_braking_collison'))  #
+
+    # path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
+    #                                              '../../data/post_processed/sampled_collision_KL'))  #
+
     path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
-                                                 '../../data/post_processed/AllSubjects_erpchnls_eog_balanced_filter_1_8_braking_collison'))  #
+                                                 '../../data/post_processed/persubject_epochs_collision/subject_12_collision_trianvaltest'))  #
+
+    path_to_data = os.path.normpath(os.path.join(os.path.dirname(__file__),
+                                                 '../../data/post_processed/AllSubjects_events_noevents_balanced'))  #
 
 
 
@@ -47,8 +56,10 @@ def load_dataset(fold,window_size):
     for file in files:
         datapoint = np.load(os.path.join(path_to_data, file))
 
-        # # Select window_size ## Comment for modes
-        # datapoint = datapoint[:, int(t_event - window_size*w_b): int(t_event + window_size*w_a)]
+        # Select window_size ## Comment for modes
+        #datapoint = datapoint[:, int(t_event - window_size*w_b): int(t_event + window_size*w_a)] # keep propotional window
+
+        datapoint = datapoint[:, : window_size] # keep starting point (before the event) and reduce the window
 
         datapoint = torch.from_numpy(datapoint).float()
         datapoints.append(datapoint)

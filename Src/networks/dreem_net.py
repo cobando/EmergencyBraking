@@ -63,7 +63,7 @@ class DreemNet(nn.Module):
                                       convolution_size=convolution_size, pool_size=pool_size)
         self.conv_block_2 = ConvBlock(in_channels=n_hidden_channels, out_channels=n_hidden_channels,
                                       convolution_size=convolution_size, pool_size=pool_size)
-        self.dense_block = DenseBlock(in_features=(window_size // pool_size ** 2 * n_virtual_channels * n_hidden_channels))
+        self.dense_block = DenseBlock(in_features=((window_size // pool_size ** 2) * n_virtual_channels * n_hidden_channels))
 
 
 
